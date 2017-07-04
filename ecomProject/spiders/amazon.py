@@ -44,13 +44,19 @@ class AmazonSpider(scrapy.Spider):
 			pass
 		
 
-	# def parse(self,response):
-	# # def parseProducts(self,response):
-	# 	q = '//li[contains(@id,"result_")]'
-	# 	for i in response.xpath(q):
-	# 		title = i.xpath('i.//h2').extract()
-			
-	# 	pass
+	def parse(self,response):
+	# def parseProducts(self,response):
+		q = '//li[contains(@id,"result_")]'
+		for i in response.xpath(q):
+			title = ''.join(i.xpath('.//h2/text()').extract())
+			sp = ''.join(i.xpath('.//span[contains(@class,"s-price")]/text()').extract())
+			mp = ''.join(i.xpath('.//span[contains(@class,"a-text-strike")]/text()').extract())
+			purl = ''.join(i.xpath('.//span[contains(@class,"s-price")]/../@href').extract())
+			imgurl = ''.join(i.xpath('.//img[contains(@class,"s-access-image")]/@src').extract())
+			yield { "title" : title, "sp" : sp, "mrp" : mp, "pdp": purl, "img":imgurl}
+		paginate_next = response.xpath('//span[@class="pagnLink"]/a/@href').extract()
+		paginate_max = response.xpath('//span[@class="pagnDisabled"]/text()').extract()
+
 
 	# def parse(self,response):
 	def parseBrandsPages(self,response):
@@ -63,8 +69,8 @@ class AmazonSpider(scrapy.Spider):
 		yield {"brand_pages" : brand_pages}
 
 
-	def parse(self,response):
-	# def parseBrands(self,response):
+	# def parse(self,response):
+	def parseBrands(self,response):
 		global site
 		q = '//span[@class="refinementLink"]'
 		self.logger.debug('parsing the brands in the page')
